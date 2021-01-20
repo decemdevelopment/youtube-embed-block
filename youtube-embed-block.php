@@ -39,3 +39,16 @@ function youtube_embed_block_register_block()
 }
 
 add_action('init', 'youtube_embed_block_register_block');
+
+function your_plugin_name_frontend_scripts()
+{
+	wp_enqueue_script(
+		'youtube_embed_block_modal',
+		plugins_url('src/plugins/modal.js', __FILE__),
+		array(),
+		filemtime(plugin_dir_path(__FILE__) . 'src/plugins/modal.js'),
+		true
+	);
+}
+
+add_action('wp_enqueue_scripts', 'your_plugin_name_frontend_scripts');

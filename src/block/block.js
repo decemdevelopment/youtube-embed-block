@@ -27,24 +27,18 @@ import {
   ToggleControl,
   IconButton,
   Button,
+  Dashicon,
+  Modal
 } from "@wordpress/components";
 
 import { useState, useEffect } from "@wordpress/element";
 
+import InputMask from "react-input-mask";
 
 const parseYoutubeURL = (url) => {
   var regExp = /^.*((youtu.be\/)|(v\/)|(\/u\/\w\/)|(embed\/)|(watch\?))\??v?=?([^#&?]*).*/;
   var match = url.match(regExp);
   return (match&&match[7].length==11)? match[7] : false;
-}
-
-const TimePicker = () => {
-  return(
-    <div className="time-picker">
-      <input type="text"/>
-      <input type="text"/>
-    </div>
-  )
 }
 
 registerBlockType("youtube-embed-block/example", {
@@ -64,8 +58,13 @@ registerBlockType("youtube-embed-block/example", {
     },
     videoStartTime: {
       type: "string",
-      defult: "00:00",
+      defult: "00:00:00",
     },
+    isModalOpen: {
+      type: 'boolean',
+      default: false
+    },
+    
   },
   /**
    * The edit function describes the structure of your block in the context of the editor.
@@ -81,15 +80,15 @@ registerBlockType("youtube-embed-block/example", {
   edit: ({ setAttributes, attributes, ...props }) => {
     const [youtubeURL, setYoutubeURL] = useState('');
     const [enableTime, setEnableTime] = useState(false);
-    const blockProps = useBlockProps();
-    useEffect(() => {
-      let id = parseYoutubeURL(youtubeURL);
-      setAttributes({
-        youtubeURL: youtubeURL,
-        youtubeVideoID: id
-      })
+    const [videoTime, setVideoTime] = useState('');
 
-    }, [youtubeURL])
+    const openModal = () => {
+      setAttributes({
+        isModalOpen: true
+      })
+    }
+
+    const blockProps = useBlockProps();
 
     const handleYoutubeUrlTextbox = (e) => {
       setAttributes({
@@ -101,11 +100,48 @@ registerBlockType("youtube-embed-block/example", {
     const handleTogglingStartVideoTime = () => {
       setEnableTime(!enableTime)
     }
+
+    const handleTimeInput = (e) => {
+      setVideoTime(e.target.value);
+      if (videoTime) {
+        console.log(videoTime);
+      }
+    }
+
+    const handleSettingTime = () => {
+      console.log(videoTime);
+      let tempTime = videoTime;
+
+      let regExp =  /(?:[0-9]?[0-9]):(?:[0-5]\d):(?:[0-5]\d)/
+
+      var match = tempTime.match(regExp)
+
+      if (match) {
+        let timeArray = match[0].split(':');
+        let timeInSeconds = Number(timeArray[0]) * 360 + Number(timeArray[1]) * 60 + Number(timeArray[2]);
+        console.log(timeInSeconds);
+      } else {
+        alert('Time format you passed into input is not right. Max values are 99:59:59.')
+      }
+
+    }
+
+    useEffect(() => {
+      let id = parseYoutubeURL(youtubeURL);
+      setAttributes({
+        youtubeURL: youtubeURL,
+        youtubeVideoID: id
+      })
+
+    }, [youtubeURL])
+
+   
     
     return [
       <InspectorControls key="1">
         <PanelBody title={__("Youtube Embed Block")}>
           <PanelRow>
+            <label>Youtube URL</label>
             <TextControl onChange={handleYoutubeUrlTextbox}></TextControl>
           </PanelRow>
           <PanelRow>
@@ -117,14 +153,19 @@ registerBlockType("youtube-embed-block/example", {
             />
           </PanelRow>
           {enableTime && <PanelRow>
-            <TimePicker />
+            <div>
+              <label>Time</label>
+              <div className="time-picker">
+                {/* <input type="text" value={videoStartTime} onCh placeholder="mm:ss"/> */}
+                {/* <NumberFormat format="##:##:##" mask="_" placeholder="hh:mm:ss" onChange={handleTimeInput} /> */}
+                <InputMask mask="99:99:99" maskPlaceholder="hh:mm:ss" onChange={handleTimeInput} onBlur={handleSettingTime} value={attributes.videoStartTime} />
+              </div>
+            </div>
           </PanelRow>}
-          
-          
         </PanelBody>
       </InspectorControls>,
       <div key="2" {...blockProps} className={props.className}>
-        <div className="youtube-embeded-block">
+        <div className="youtube-embeded-block" onClick={openModal}>
           <img src={`https://img.youtube.com/vi/${attributes.youtubeVideoID}/maxresdefault.jpg`} alt=""/>
         </div>
       </div>,
@@ -142,10 +183,42 @@ registerBlockType("youtube-embed-block/example", {
    * @param {Object} props Props.
    * @returns {Mixed} JSX Frontend HTML.
    */
-  save: (props) => {
+  save: ({attributes, setAttributes, ...props}) => {
     return (
-      <div className={props.className}>
-        <p>— Hello from the frontend.</p>
+      <div key="2"className={props.className}>
+        <div className="youtube-embeded-block">
+          <img class="btn-modal" data-id="fin-fout-modal" src={`https://img.youtube.com/vi/${attributes.youtubeVideoID}/maxresdefault.jpg`} alt=""/>
+        </div>
+        <div className="modal" id="fin-fout-modal">
+          <div class="m-container">
+            <span class="m-close"></span>
+            <div class="m-content">
+              <div
+                className="youtube-embeded-block__video-wrapper"
+                style={{
+                  position: "relative",
+                  paddingBottom: "56.25%" /* 16:9 */,
+                  paddingTop: 25,
+                  height: 0,
+                  minWidth: '80vw'
+                }}
+              >
+                <iframe
+                  style={{
+                    position: "absolute",
+                    top: 0,
+                    left: 0,
+                    width: "100%",
+                    height: "100%"
+                  }}
+                  className="youtube-embeded-block__video"
+                  src={`https://www.youtube.com/embed/${attributes.youtubeVideoID}?&enablejsapi=1&start=132`}
+                  frameBorder="0"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     );
   },

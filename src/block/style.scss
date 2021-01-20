@@ -1,3 +1,147 @@
-.guten-test * {
-   color: red !important;
- }
+.modal {
+  position: fixed;
+  z-index: 9999;
+  left: 0;
+  bottom: 0;
+  top: 0;
+  right: 0;
+  overflow-x: hidden;
+  overflow-y: auto;
+  background-color: rgba(0, 0, 0, 0.3);
+  padding: 20px;
+  visibility: hidden;
+  opacity: 0;
+  transition: all 0.3s ease-in-out;
+
+  .m-container {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    min-height: 150px;
+    height: auto;
+    margin: 0 auto;
+    position: relative;
+    border-radius: 5px;
+    margin-top: 120px;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.15),
+      0 10px 10px -5px rgba(0, 0, 0, 0.1);
+    opacity: 0;
+    transition: all 0.3s ease-in-out;
+
+    &.sm-modal {
+      max-width: 300px;
+    }
+
+    &.l-modal {
+      max-width: 800px;
+    }
+
+    &.xl-modal {
+      max-width: 80%;
+    }
+
+    &.full-modal {
+      max-width: 100%;
+    }
+
+    &.bounce {
+      transform: scale(0.4);
+      transition: all 0.3s cubic-bezier(0.75, -0.5, 0, 2.75);
+    }
+
+    &.slide-from-top {
+      top: -200px;
+    }
+
+    &.slide-from-bottom {
+      bottom: -200px;
+    }
+
+    &.slide-from-left {
+      left: -200px;
+    }
+
+    &.slide-from-right {
+      right: -200px;
+    }
+
+    .m-close {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: absolute;
+      height: 25px;
+      width: 25px;
+      right: 6px;
+      top: 9px;
+      padding: 0;
+      margin: 0;
+      background-color: #f2f2f2;
+      border-radius: 50%;
+      transform: rotate(45deg);
+      cursor: pointer;
+      box-shadow: 0 5px 10px -5px rgba(0, 0, 0, 0.15),
+        0 10px 10px -5px rgba(0, 0, 0, 0.1);
+      z-index: 1;
+
+      &:after,
+      &:before {
+        content: "";
+        display: block;
+        position: absolute;
+        background-color: #262626;
+        border-radius: 3px;
+      }
+
+      &:after {
+        width: 2px;
+        height: 16px;
+      }
+
+      &:before {
+        width: 16px;
+        height: 2px;
+      }
+    }
+
+    .m-content {
+      display: block;
+      background-color: #fff;
+      min-height: 150px;
+      width: 100%;
+      height: auto;
+      margin: 0;
+      padding: 20px;
+      border-radius: 0 0 5px 5px;
+    }
+  }
+
+  &.active {
+    visibility: visible;
+    opacity: 1;
+
+    .m-container {
+      opacity: 1;
+
+      &.bounce {
+        transform: scale(1);
+      }
+
+      &.slide-from-top {
+        top: 0px;
+      }
+
+      &.slide-from-bottom {
+        bottom: 0px;
+      }
+
+      &.slide-from-left {
+        left: 0px;
+      }
+
+      &.slide-from-right {
+        right: 0px;
+      }
+    }
+  }
+}
