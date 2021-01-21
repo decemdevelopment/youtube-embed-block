@@ -58,7 +58,7 @@ registerBlockType("youtube-embed-block/example", {
     },
     videoStartTime: {
       type: "string",
-      defult: "00:00:00",
+      defult: "",
     },
     isModalOpen: {
       type: 'boolean',
@@ -88,13 +88,13 @@ registerBlockType("youtube-embed-block/example", {
       })
     }
 
-    const blockProps = useBlockProps();
+    const blockProps = useBlockProps()
 
     const handleYoutubeUrlTextbox = (e) => {
       setAttributes({
         youtubeURL: e
       });
-      setYoutubeURL(e);
+      setYoutubeURL(e)
     }
 
     const handleTogglingStartVideoTime = () => {
@@ -102,14 +102,10 @@ registerBlockType("youtube-embed-block/example", {
     }
 
     const handleTimeInput = (e) => {
-      setVideoTime(e.target.value);
-      if (videoTime) {
-        console.log(videoTime);
-      }
+      setVideoTime(e.target.value)
     }
 
     const handleSettingTime = () => {
-      console.log(videoTime);
       let tempTime = videoTime;
 
       let regExp =  /(?:[0-9]?[0-9]):(?:[0-5]\d):(?:[0-5]\d)/
@@ -119,9 +115,12 @@ registerBlockType("youtube-embed-block/example", {
       if (match) {
         let timeArray = match[0].split(':');
         let timeInSeconds = Number(timeArray[0]) * 360 + Number(timeArray[1]) * 60 + Number(timeArray[2]);
-        console.log(timeInSeconds);
+        // console.log(timeInSeconds);
+        setAttributes({
+          videoStartTime: timeInSeconds
+        })
       } else {
-        alert('Time format you passed into input is not right. Max values are 99:59:59.')
+        alert('Time format you passed into input is not valid. Max values are 99:59:59.')
       }
 
     }
@@ -141,8 +140,10 @@ registerBlockType("youtube-embed-block/example", {
       <InspectorControls key="1">
         <PanelBody title={__("Youtube Embed Block")}>
           <PanelRow>
-            <label>Youtube URL</label>
-            <TextControl onChange={handleYoutubeUrlTextbox}></TextControl>
+            <div>
+              <label>Youtube URL</label>
+              <TextControl onChange={handleYoutubeUrlTextbox}></TextControl>
+            </div>
           </PanelRow>
           <PanelRow>
             <ToggleControl
@@ -156,9 +157,7 @@ registerBlockType("youtube-embed-block/example", {
             <div>
               <label>Time</label>
               <div className="time-picker">
-                {/* <input type="text" value={videoStartTime} onCh placeholder="mm:ss"/> */}
-                {/* <NumberFormat format="##:##:##" mask="_" placeholder="hh:mm:ss" onChange={handleTimeInput} /> */}
-                <InputMask mask="99:99:99" maskPlaceholder="hh:mm:ss" onChange={handleTimeInput} onBlur={handleSettingTime} value={attributes.videoStartTime} />
+                <InputMask className="components-text-control__input" mask="99:99:99" maskPlaceholder="hh:mm:ss" onChange={handleTimeInput} onBlur={handleSettingTime} value={videoTime} />
               </div>
             </div>
           </PanelRow>}
@@ -184,15 +183,17 @@ registerBlockType("youtube-embed-block/example", {
    * @returns {Mixed} JSX Frontend HTML.
    */
   save: ({attributes, setAttributes, ...props}) => {
+    const {videoStartTime} = attributes;
+    console.log('from save ', videoStartTime);
     return (
       <div key="2"className={props.className}>
         <div className="youtube-embeded-block">
-          <img class="btn-modal" data-id="fin-fout-modal" src={`https://img.youtube.com/vi/${attributes.youtubeVideoID}/maxresdefault.jpg`} alt=""/>
+          <img className="btn-modal" data-id="fin-fout-modal" src={`https://img.youtube.com/vi/${attributes.youtubeVideoID}/maxresdefault.jpg`} alt=""/>
         </div>
         <div className="modal" id="fin-fout-modal">
-          <div class="m-container">
-            <span class="m-close"></span>
-            <div class="m-content">
+          <div className="m-container">
+            <span className="m-close"></span>
+            <div className="m-content">
               <div
                 className="youtube-embeded-block__video-wrapper"
                 style={{
@@ -200,7 +201,7 @@ registerBlockType("youtube-embed-block/example", {
                   paddingBottom: "56.25%" /* 16:9 */,
                   paddingTop: 25,
                   height: 0,
-                  minWidth: '80vw'
+                  minWidth: '70vw'
                 }}
               >
                 <iframe
@@ -212,7 +213,7 @@ registerBlockType("youtube-embed-block/example", {
                     height: "100%"
                   }}
                   className="youtube-embeded-block__video"
-                  src={`https://www.youtube.com/embed/${attributes.youtubeVideoID}?&enablejsapi=1&start=132`}
+                  src={`https://www.youtube.com/embed/${attributes.youtubeVideoID}?&enablejsapi=1${videoStartTime ? '&start=' + videoStartTime: ''}`}
                   frameBorder="0"
                 />
               </div>
